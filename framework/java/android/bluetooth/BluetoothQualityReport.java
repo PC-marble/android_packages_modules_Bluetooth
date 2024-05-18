@@ -928,6 +928,12 @@ public final class BluetoothQualityReport implements Parcelable {
             bqrBuf.order(ByteOrder.LITTLE_ENDIAN);
             mVendorBqr5 = vendorBqr5;
             mQualityReportId = bqrBuf.get() & 0xFF;
+            if (mQualityReportId != QUALITY_REPORT_ID_VENDOR_SPECIFIC) {
+              if (rawData.length < offset + BQR_COMMON_LEN) {
+                  throw new IllegalArgumentException(TAG + ": BQR raw data length is abnormal.");
+              }
+            }
+
             if(mQualityReportId == QUALITY_REPORT_ID_VENDOR_SPECIFIC) {
                 mVendorQualityReportId = bqrBuf.get() & 0xFF;
             } else {
@@ -1598,9 +1604,9 @@ public final class BluetoothQualityReport implements Parcelable {
             mRfLoss = bqrBuf.getShort() & 0xFFFF;
             mNativeClock = bqrBuf.getInt() & 0xFFFFFFFFL;
             mLastTxAckTimestamp = bqrBuf.getInt() & 0xFFFFFFFFL;
-            mPowerLevelInDbm = bqrBuf.get() & 0xFF;
 
             if(isExtended) {
+                mPowerLevelInDbm = bqrBuf.get() & 0xFF;
                 mCrcErrorCount = bqrBuf.getInt() & 0xFFFFFFFFL;
                 mDecryptErrorCount = bqrBuf.getInt() & 0xFFFFFFFFL;
                 mLastSniffStartTimestamp = bqrBuf.getInt() & 0xFFFFFFFFL;
@@ -1618,8 +1624,8 @@ public final class BluetoothQualityReport implements Parcelable {
             mRfLoss = in.readInt();
             mNativeClock = in.readLong();
             mLastTxAckTimestamp = in.readLong();
-            mPowerLevelInDbm = in.readInt();
-            if(isExtended){
+            if(isExtended) {
+                mPowerLevelInDbm = in.readInt();
                 mCrcErrorCount = in.readLong();
                 mDecryptErrorCount = in.readLong();
                 mLastSniffStartTimestamp = in.readLong();
@@ -1824,8 +1830,8 @@ public final class BluetoothQualityReport implements Parcelable {
             dest.writeInt(mRfLoss);
             dest.writeLong(mNativeClock);
             dest.writeLong(mLastTxAckTimestamp);
-            dest.writeInt(mPowerLevelInDbm);
-            if(isExtended){
+            if(isExtended) {
+                dest.writeInt(mPowerLevelInDbm);
                 dest.writeLong(mCrcErrorCount);
                 dest.writeLong(mDecryptErrorCount);
                 dest.writeLong(mLastSniffStartTimestamp);
@@ -1877,11 +1883,10 @@ public final class BluetoothQualityReport implements Parcelable {
                             + String.format("0x%08X", mNativeClock)
                             + ", mLastTxAckTimestamp: "
                             + String.format("0x%08X", mLastTxAckTimestamp)
-                            +", mPowerLevelInDbm: "
-                            +mPowerLevelInDbm
                             + "\n  }";
                     if (isExtended) {
-                    str  += ", mCrcErrorCount: " + mCrcErrorCount
+                    str  += ", mPowerLevelInDbm: " + mPowerLevelInDbm
+                         +", mCrcErrorCount: " + mCrcErrorCount
                          + ", mDecryptErrorCount: " + mDecryptErrorCount
                          + ", mLastSniffStartTimestamp: " + mLastSniffStartTimestamp
                          + ", mLastActiveStartTimestamp: " + mLastActiveStartTimestamp
@@ -1971,7 +1976,6 @@ public final class BluetoothQualityReport implements Parcelable {
                 mRxCxmDenials = bqrBuf.getShort() & 0xFFFF;
                 mAclTxQueueLength = bqrBuf.get() & 0xFF;
                 mLinkQuality = bqrBuf.get() & 0xFF;
-                mPowerLevelInDbm = bqrBuf.get() & 0xFF;
             }
         }
 
@@ -2003,7 +2007,6 @@ public final class BluetoothQualityReport implements Parcelable {
                 mRxCxmDenials = in.readInt();
                 mAclTxQueueLength = in.readInt();
                 mLinkQuality = in.readInt();
-                mPowerLevelInDbm = in.readInt();
             }
         }
 
@@ -2254,7 +2257,6 @@ public final class BluetoothQualityReport implements Parcelable {
                dest.writeInt(mRxCxmDenials);
                dest.writeInt(mAclTxQueueLength);
                dest.writeInt(mLinkQuality);
-               dest.writeInt(mPowerLevelInDbm);
            }
         }
 
@@ -2385,8 +2387,8 @@ public final class BluetoothQualityReport implements Parcelable {
             mTxRetransmitSlotCount = bqrBuf.getShort() & 0xFFFF;
             mRxRetransmitSlotCount = bqrBuf.getShort() & 0xFFFF;
             mGoodRxFrameCount = bqrBuf.getShort() & 0xFFFF;
-            mPowerLevelInDbm = bqrBuf.get() & 0xFF;
             if(isExtended) {
+                mPowerLevelInDbm = bqrBuf.get() & 0xFF;
                 mCrcErrorCount = bqrBuf.getInt() & 0xFFFFFFFFL;
                 mDecryptErrorCount = bqrBuf.getInt() & 0xFFFFFFFFL;
                 mLastSniffStartTimestamp = bqrBuf.getInt() & 0xFFFFFFFFL;
@@ -2414,8 +2416,8 @@ public final class BluetoothQualityReport implements Parcelable {
             mTxRetransmitSlotCount = in.readInt();
             mRxRetransmitSlotCount = in.readInt();
             mGoodRxFrameCount = in.readInt();
-            mPowerLevelInDbm = in.readInt();
             if (isExtended) {
+                mPowerLevelInDbm = in.readInt();
                 mCrcErrorCount = in.readLong();
                 mDecryptErrorCount = in.readLong();
                 mLastSniffStartTimestamp = in.readLong();
@@ -2709,8 +2711,8 @@ public final class BluetoothQualityReport implements Parcelable {
             dest.writeInt(mTxRetransmitSlotCount);
             dest.writeInt(mRxRetransmitSlotCount);
             dest.writeInt(mGoodRxFrameCount);
-            dest.writeInt(mPowerLevelInDbm);
-            if(isExtended){
+            if(isExtended) {
+                dest.writeInt(mPowerLevelInDbm);
                 dest.writeLong(mCrcErrorCount);
                 dest.writeLong(mDecryptErrorCount);
                 dest.writeLong(mLastSniffStartTimestamp);
@@ -2783,11 +2785,10 @@ public final class BluetoothQualityReport implements Parcelable {
                             + mRxRetransmitSlotCount
                             + ", mGoodRxFrameCount: "
                             + mGoodRxFrameCount
-                            + ", mPowerLevelInDbm: "
-                            +mPowerLevelInDbm
                             + "\n  }";
                         if (isExtended) {
-                            str += ", mCrcErrorCount: " + mCrcErrorCount
+                            str +=", mPowerLevelInDbm: "+mPowerLevelInDbm
+                                 +", mCrcErrorCount: " + mCrcErrorCount
                                  + ", mDecryptErrorCount: " + mDecryptErrorCount
                                  + ", mLastSniffStartTimestamp: " + mLastSniffStartTimestamp
                                  + ", mLastActiveStartTimestamp: " + mLastActiveStartTimestamp
